@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎧 سورة - تلاوات الدكتور سعيد راضي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tahoma', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: linear-gradient(135deg, #020617, #0f172a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .bg-circle {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.1), transparent);
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s infinite ease-in-out;
+        }
+        @keyframes float {
+            0% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(30px,-30px) scale(1.1); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: 0.2s;
+        }
+        .back-btn:active { transform: scale(0.95); background: #22c55e; color: black; }
+        .player-card {
+            position: relative;
+            z-index: 10;
+            background: rgba(15,23,42,0.7);
+            backdrop-filter: blur(25px);
+            border-radius: 60px;
+            padding: 30px 25px 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(34,197,94,0.3);
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cover {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid #22c55e;
+            transition: 0.3s;
+        }
+        .cover.rotating { animation: rotate 20s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .title { font-size: 26px; font-weight: bold; margin-bottom: 15px; color: white; }
+        .loading-badge { font-size: 12px; color: #22c55e; margin-top: 5px; display: none; }
+        .wave {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 6px;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+        .wave span {
+            width: 7px;
+            background: linear-gradient(180deg, #22c55e, #16a34a);
+            border-radius: 10px;
+            transition: height 0.05s linear;
+        }
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            margin: 10px auto 5px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .progress-container {
+            width: 90%;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 10px;
+            margin: 0 auto 25px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            border-radius: 10px;
+            position: relative;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #22c55e;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        .controls button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .controls button:active { transform: scale(0.9); background: #22c55e; color: black; }
+        .play-btn {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            margin: 5px auto 0;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 30px rgba(34,197,94,0.6);
+        }
+        .play-btn:active { transform: scale(0.92); }
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 16px 0 16px 28px;
+            border-color: transparent transparent transparent #0f172a;
+        }
+        .pause-icon {
+            width: 28px;
+            height: 28px;
+            position: relative;
+        }
+        .pause-icon::before, .pause-icon::after {
+            content: "";
+            position: absolute;
+            width: 9px;
+            height: 100%;
+            background: #0f172a;
+            top: 0;
+            border-radius: 2px;
+        }
+        .pause-icon::before { left: 0; }
+        .pause-icon::after { right: 0; }
+        .toast {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #22c55e;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 2000;
+            opacity: 0;
+            transition: 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .volume-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .volume-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .volume-bar-container {
+            width: 90%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 10px;
+            margin: 0 auto;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .volume-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            border-radius: 10px;
+            transition: width 0.05s linear;
+        }
+        .volume-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .volume-btn {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .volume-percent {
+            font-size: 12px;
+            color: #22c55e;
+            background: rgba(34,197,94,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            min-width: 50px;
+        }
+        .playlist-fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(34,197,94,0.4);
+            z-index: 100;
+        }
+        .playlist-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98));
+            backdrop-filter: blur(30px);
+            border-radius: 35px 35px 0 0;
+            max-height: 75vh;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);
+            z-index: 1000;
+            border-top: 1px solid rgba(34,197,94,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        .playlist-panel.show { transform: translateY(0); }
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: rgba(34,197,94,0.1);
+            border-bottom: 1px solid rgba(34,197,94,0.2);
+        }
+        .playlist-header h3 { color: #22c55e; display: flex; align-items: center; gap: 10px; }
+        .playlist-count {
+            background: rgba(34,197,94,0.2);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+        .close-playlist {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+        }
+        .playlist-search { padding: 12px 20px; background: rgba(0,0,0,0.3); }
+        .playlist-search input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-align: right;
+            outline: none;
+        }
+        .playlist-items-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            max-height: 55vh;
+        }
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            margin: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.03);
+            transition: 0.2s;
+        }
+        .playlist-item.active {
+            background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05));
+            border: 1px solid rgba(34,197,94,0.5);
+        }
+        .playlist-item-number {
+            width: 45px;
+            height: 45px;
+            background: rgba(34,197,94,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #22c55e;
+        }
+        .playlist-item.active .playlist-item-number { background: #22c55e; color: black; }
+        .playlist-item-name { flex: 1; text-align: right; font-size: 16px; margin: 0 15px; color: #e2e8f0; }
+        .playlist-item-playing { width: 30px; color: #22c55e; }
+        .playlist-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+        .playlist-footer button {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        @media (max-width: 550px) {
+            .cover { width: 150px; height: 150px; }
+            .title { font-size: 20px; }
+            .controls button { width: 45px; height: 45px; font-size: 18px; }
+            .play-btn { width: 70px; height: 70px; }
+            .playlist-fab { width: 50px; height: 50px; font-size: 20px; bottom: 20px; right: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-circle" style="width:300px;height:300px;top:-100px;right:-100px;"></div>
+    <div class="bg-circle" style="width:200px;height:200px;bottom:50px;left:-80px;"></div>
+    <div class="bg-circle" style="width:400px;height:400px;bottom:-150px;right:-100px;animation-delay:-10s;"></div>
+
+    <div class="back-btn" id="backBtn"><i class="fas fa-arrow-right"></i> رجوع</div>
+
+    <div class="player-card">
+        <img src="icon-192.png" class="cover" id="coverImg" alt="cover">
+        <div class="title" id="surahTitle">🎧 تحميل...</div>
+        <div class="loading-badge" id="loadingBadge">⏳ جاري التحميل...</div>
+        <div class="wave" id="wave">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="time-row"><span id="currentTime">0:00</span><span id="totalDuration">0:00</span></div>
+        <div class="progress-container" id="progressContainer"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="controls">
+            <button id="prevBtn" title="السورة السابقة"><i class="fas fa-backward-step"></i></button>
+            <button id="seekBackBtn" title="رجوع 10 ثوان"><i class="fas fa-rotate-left"></i></button>
+            <button id="seekForwardBtn" title="تقدم 10 ثوان"><i class="fas fa-rotate-right"></i></button>
+            <button id="nextBtn" title="السورة التالية"><i class="fas fa-forward-step"></i></button>
+        </div>
+        <button class="play-btn" id="playBtn"><span id="playIcon" class="play-icon"></span></button>
+
+        <div class="volume-section">
+            <div class="volume-label"><i class="fas fa-volume-down" style="color:#22c55e"></i><span>مستوى الصوت</span><i class="fas fa-volume-up" style="color:#22c55e"></i></div>
+            <div class="volume-bar-container" id="volumeBarContainer"><div class="volume-bar-fill" id="volumeBarFill"></div></div>
+            <div class="volume-controls">
+                <button class="volume-btn" id="volumeDownBtn"><i class="fas fa-minus"></i></button>
+                <span class="volume-percent" id="volumePercent">100%</span>
+                <button class="volume-btn" id="volumeUpBtn"><i class="fas fa-plus"></i></button>
+                <button class="volume-btn" id="volumeMuteBtn"><i class="fas fa-volume-up"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <button class="playlist-fab" id="playlistFabBtn"><i class="fas fa-list-ul"></i></button>
+
+    <div id="playlistPanel" class="playlist-panel">
+        <div class="playlist-header"><h3><i class="fas fa-quran"></i> قائمة السور <span class="playlist-count" id="playlistCount">114</span></h3><button class="close-playlist" id="closePlaylistBtn"><i class="fas fa-times"></i></button></div>
+        <div class="playlist-search"><input type="text" id="playlistSearch" placeholder="🔍 ابحث عن سورة..."></div>
+        <div class="playlist-items-container"><div id="playlistItems"></div></div>
+        <div class="playlist-footer"><button id="playlistCloseBtn"><i class="fas fa-chevron-down"></i> إغلاق</button></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <audio id="audio" preload="metadata"></audio>
+
+    <script>
+        // قائمة السور (نفس الترتيب)
+        const surahs = [
+            "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
+            "هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+            "الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم",
+            "لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر",
+            "فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق",
+            "الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة",
+            "الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج",
+            "نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس",
+            "التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد",
+            "الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات",
+            "القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر",
+            "المسد","الإخلاص","الفلق","الناس"
+        ];
+
+        // العناصر
+        const audio = document.getElementById("audio");
+        const playBtn = document.getElementById("playBtn");
+        const playIcon = document.getElementById("playIcon");
+        const surahTitle = document.getElementById("surahTitle");
+        const currentTimeSpan = document.getElementById("currentTime");
+        const totalDurationSpan = document.getElementById("totalDuration");
+        const progressFill = document.getElementById("progressFill");
+        const progressContainer = document.getElementById("progressContainer");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const seekBackBtn = document.getElementById("seekBackBtn");
+        const seekForwardBtn = document.getElementById("seekForwardBtn");
+        const playlistFabBtn = document.getElementById("playlistFabBtn");
+        const playlistPanel = document.getElementById("playlistPanel");
+        const closePlaylistBtn = document.getElementById("closePlaylistBtn");
+        const playlistCloseBtn = document.getElementById("playlistCloseBtn");
+        const playlistItems = document.getElementById("playlistItems");
+        const playlistSearch = document.getElementById("playlistSearch");
+        const playlistCountSpan = document.getElementById("playlistCount");
+        const waveSpans = document.querySelectorAll("#wave span");
+        const coverImg = document.getElementById("coverImg");
+        const toast = document.getElementById("toast");
+        const loadingBadge = document.getElementById("loadingBadge");
+        const volumeBarContainer = document.getElementById("volumeBarContainer");
+        const volumeBarFill = document.getElementById("volumeBarFill");
+        const volumeDownBtn = document.getElementById("volumeDownBtn");
+        const volumeUpBtn = document.getElementById("volumeUpBtn");
+        const volumeMuteBtn = document.getElementById("volumeMuteBtn");
+        const volumePercentSpan = document.getElementById("volumePercent");
+
+        // متغيرات
+        let surahIndex = 0;
+        let fileNumber = "001";
+        let isDragging = false;
+        let isTimeRestored = false;
+        let currentFilter = "";
+        let audioCtx = null, analyser = null, source = null;
+        let isWaveActive = false, animFrame = null;
+        let isMuted = false, lastVolume = 1;
+
+        // دوال مساعدة
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 1500);
+        }
+        function formatTime(sec) {
+            if (isNaN(sec) || sec === Infinity) return "0:00";
+            let mins = Math.floor(sec / 60);
+            let secs = Math.floor(sec % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        function saveCurrentTime() {
+            if (audio.duration && audio.currentTime > 0)
+                localStorage.setItem(`surah_${surahIndex}_time`, audio.currentTime);
+        }
+
+        // الصوت
+        function setVolume(value) {
+            let vol = Math.min(1, Math.max(0, value));
+            audio.volume = vol;
+            volumeBarFill.style.width = (vol * 100) + "%";
+            volumePercentSpan.textContent = Math.round(vol * 100) + "%";
+            if (vol === 0) {
+                volumeMuteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                isMuted = true;
+            } else {
+                volumeMuteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                isMuted = false;
+                lastVolume = vol;
+            }
+            localStorage.setItem("audioVolume", vol);
+        }
+        function toggleMute() {
+            if (isMuted) setVolume(lastVolume);
+            else { lastVolume = audio.volume; setVolume(0); }
+        }
+        volumeDownBtn.onclick = () => setVolume(audio.volume - 0.1);
+        volumeUpBtn.onclick = () => setVolume(audio.volume + 0.1);
+        volumeMuteBtn.onclick = toggleMute;
+        let volDragging = false;
+        volumeBarContainer.onpointerdown = (e) => {
+            volDragging = true;
+            volumeBarContainer.setPointerCapture(e.pointerId);
+            updateVolume(e);
+        };
+        volumeBarContainer.onpointermove = (e) => { if (volDragging) updateVolume(e); };
+        volumeBarContainer.onpointerup = () => { volDragging = false; };
+        function updateVolume(e) {
+            let rect = volumeBarContainer.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            setVolume(Math.min(1, Math.max(0, percent)));
+        }
+        let savedVol = localStorage.getItem("audioVolume");
+        setVolume(savedVol !== null ? parseFloat(savedVol) : 1);
+
+        // التنقل
+        function prevSurah() {
+            saveCurrentTime();
+            if (surahIndex > 0) {
+                surahIndex--;
+            } else {
+                showToast("📖 هذه أول سورة");
+                return;
+            }
+            fileNumber = String(surahIndex + 1).padStart(3, '0');
+            isTimeRestored = false;
+            loadSurah();
+            showToast(`⏮ سورة ${surahs[surahIndex]}`);
+        }
+        function nextSurah() {
+            saveCurrentTime();
+            if (surahIndex < surahs.length - 1) {
+                surahIndex++;
+            } else {
+                showToast("📖 هذه آخر سورة");
+                return;
+            }
+            fileNumber = String(surahIndex + 1).padStart(3, '0');
+            isTimeRestored = false;
+            loadSurah();
+            showToast(`⏭ سورة ${surahs[surahIndex]}`);
+        }
+
+        // تحميل السورة
+        function loadSurah() {
+            let src = `audio/${fileNumber}.mp3`;
+            audio.src = src;
+            surahTitle.textContent = `🎧 سورة ${surahs[surahIndex]}`;
+            localStorage.setItem("audioSrc", src);
+            localStorage.setItem("surahIndex", surahIndex);
+            audio.load();
+            isTimeRestored = false;
+            let savedTime = localStorage.getItem(`surah_${surahIndex}_time`);
+            audio.onloadedmetadata = () => {
+                if (!isTimeRestored && savedTime && parseFloat(savedTime) > 0 && audio.duration > parseFloat(savedTime)) {
+                    audio.currentTime = parseFloat(savedTime);
+                    isTimeRestored = true;
+                }
+                totalDurationSpan.textContent = formatTime(audio.duration);
+            };
+            audio.play().catch(e => console.log("Auto-play blocked"));
+            let savedPlaying = localStorage.getItem("isPlaying");
+            if (savedPlaying === "false") setTimeout(() => audio.pause(), 300);
+            updatePlaylistActive();
+        }
+
+        // واجهة الموجات
+        function updatePlayUI() {
+            if (audio.paused) {
+                playIcon.className = "play-icon";
+                stopWaveAnimation();
+                coverImg.classList.remove("rotating");
+            } else {
+                playIcon.className = "pause-icon";
+                startWaveAnimation();
+                coverImg.classList.add("rotating");
+            }
+        }
+        function initAudioContext() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            source = audioCtx.createMediaElementSource(audio);
+            analyser = audioCtx.createAnalyser();
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 64;
+        }
+        function startWaveAnimation() {
+            if (!audioCtx) initAudioContext();
+            if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+            isWaveActive = true;
+            drawWave();
+        }
+        function stopWaveAnimation() {
+            isWaveActive = false;
+            waveSpans.forEach(span => span.style.height = "5px");
+            if (animFrame) cancelAnimationFrame(animFrame);
+            animFrame = null;
+        }
+        function drawWave() {
+            if (!isWaveActive || !analyser) return;
+            animFrame = requestAnimationFrame(drawWave);
+            let dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+            waveSpans.forEach((span, i) => {
+                let val = dataArray[i % dataArray.length] || 0;
+                span.style.height = (5 + val / 7) + "px";
+            });
+        }
+
+        // أحداث الصوت
+        audio.addEventListener("timeupdate", () => {
+            if (audio.duration && !isDragging) {
+                let percent = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = percent + "%";
+                currentTimeSpan.textContent = formatTime(audio.currentTime);
+            }
+            localStorage.setItem("audioTime", audio.currentTime);
+        });
+        audio.addEventListener("play", updatePlayUI);
+        audio.addEventListener("pause", updatePlayUI);
+        audio.addEventListener("loadstart", () => loadingBadge.style.display = "block");
+        audio.addEventListener("canplay", () => loadingBadge.style.display = "none");
+        audio.addEventListener("ended", () => nextSurah());
+
+        // شريط التقدم
+        progressContainer.addEventListener("pointerdown", (e) => {
+            isDragging = true;
+            progressContainer.setPointerCapture(e.pointerId);
+            seek(e);
+        });
+        progressContainer.addEventListener("pointermove", (e) => { if (isDragging) seek(e); });
+        progressContainer.addEventListener("pointerup", () => { isDragging = false; });
+        function seek(e) {
+            let rect = progressContainer.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            percent = Math.min(1, Math.max(0, percent));
+            progressFill.style.width = (percent * 100) + "%";
+            audio.currentTime = percent * audio.duration;
+        }
+
+        // الأزرار الرئيسية
+        playBtn.onclick = () => {
+            if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+            audio.paused ? audio.play() : audio.pause();
+        };
+        prevBtn.onclick = prevSurah;
+        nextBtn.onclick = nextSurah;
+        seekBackBtn.onclick = () => { audio.currentTime -= 10; showToast("⏪ رجوع 10 ثوانٍ"); };
+        seekForwardBtn.onclick = () => { audio.currentTime += 10; showToast("⏩ تقدم 10 ثوانٍ"); };
+        document.getElementById("backBtn").onclick = () => {
+            saveCurrentTime();
+            localStorage.setItem("audioTime", audio.currentTime);
+            localStorage.setItem("audioSrc", audio.src);
+            localStorage.setItem("surahIndex", surahIndex);
+            localStorage.setItem("isPlaying", !audio.paused);
+            localStorage.setItem("audioVolume", audio.volume);
+            window.location.href = "index.html";
+        };
+
+        // قائمة السور
+        function buildPlaylist(filter = "") {
+            currentFilter = filter;
+            playlistItems.innerHTML = "";
+            let filtered = surahs.filter((name, idx) => name.includes(filter) || (idx+1).toString().includes(filter));
+            playlistCountSpan.textContent = filtered.length;
+            filtered.forEach(name => {
+                let realIdx = surahs.indexOf(name);
+                let item = document.createElement("div");
+                item.className = "playlist-item";
+                if (realIdx === surahIndex) item.classList.add("active");
+                item.innerHTML = `
+                    <div class="playlist-item-number">${realIdx+1}</div>
+                    <div class="playlist-item-name">${name}</div>
+                    <div class="playlist-item-playing">${realIdx === surahIndex && !audio.paused ? '<i class="fas fa-play"></i>' : (realIdx === surahIndex && audio.paused ? '<i class="fas fa-pause"></i>' : '')}</div>
+                `;
+                item.onclick = () => {
+                    saveCurrentTime();
+                    surahIndex = realIdx;
+                    fileNumber = String(surahIndex+1).padStart(3,'0');
+                    isTimeRestored = false;
+                    loadSurah();
+                    playlistPanel.classList.remove("show");
+                    showToast(`📖 سورة ${surahs[surahIndex]}`);
+                    buildPlaylist(currentFilter);
+                };
+                playlistItems.appendChild(item);
+            });
+            if(filtered.length === 0){
+                playlistItems.innerHTML = `<div style="text-align:center;padding:40px;color:#64748b;"><i class="fas fa-search" style="font-size:40px;display:block;margin-bottom:10px;"></i>لا توجد نتائج</div>`;
+            }
+        }
+        function updatePlaylistActive() {
+            document.querySelectorAll(".playlist-item").forEach(item => {
+                let num = item.querySelector(".playlist-item-number")?.innerText;
+                if (num && parseInt(num) === surahIndex+1) item.classList.add("active");
+                else item.classList.remove("active");
+            });
+        }
+        playlistFabBtn.onclick = () => { buildPlaylist(""); playlistPanel.classList.add("show"); playlistSearch.value = ""; };
+        closePlaylistBtn.onclick = () => playlistPanel.classList.remove("show");
+        playlistCloseBtn.onclick = () => playlistPanel.classList.remove("show");
+        playlistSearch.oninput = (e) => buildPlaylist(e.target.value);
+        document.addEventListener("click", (e) => {
+            if (!playlistPanel.contains(e.target) && e.target !== playlistFabBtn && !playlistFabBtn.contains(e.target) && playlistPanel.classList.contains("show"))
+                playlistPanel.classList.remove("show");
+        });
+
+        // Media Session
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => audio.play());
+            navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+            navigator.mediaSession.setActionHandler('previoustrack', prevSurah);
+            navigator.mediaSession.setActionHandler('nexttrack', nextSurah);
+        }
+
+        // استعادة الفهرس من الرابط أو التخزين
+        const urlParams = new URLSearchParams(window.location.search);
+        let urlIdx = urlParams.get("surah");
+        let urlFile = urlParams.get("file");
+        const savedIdx = localStorage.getItem("surahIndex");
+        if (urlIdx && !isNaN(parseInt(urlIdx))) {
+            surahIndex = parseInt(urlIdx);
+            fileNumber = urlFile || String(surahIndex+1).padStart(3,'0');
+        } else if (savedIdx !== null) {
+            surahIndex = parseInt(savedIdx);
+            fileNumber = String(surahIndex+1).padStart(3,'0');
+        } else {
+            surahIndex = 0;
+            fileNumber = "001";
+        }
+        loadSurah();
+    </script>
+</body>
+</html>
